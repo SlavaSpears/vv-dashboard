@@ -7,7 +7,7 @@ import { EventType, TaskStatus } from "@prisma/client";
 // This route uses Prisma and must run on the Node.js runtime (not Edge).
 export const runtime = "nodejs";
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
+const getClient = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "missing" });
 
 const CommandSchema = z.discriminatedUnion("type", [
   z.object({
@@ -87,8 +87,9 @@ Rules:
 - No markdown. No extra keys. JSON only.
 `.trim();
 
+    const client = getClient();
     const resp = await client.chat.completions.create({
-      model: "gpt-4.1-mini",
+      model: "gpt-4o-mini",
       temperature: 0,
       messages: [
         { role: "system", content: system },

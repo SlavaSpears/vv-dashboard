@@ -7,18 +7,18 @@ function getPrisma() {
   const url = process.env.DATABASE_URL || process.env.DIRECT_URL;
   
   if (!url) {
-    console.warn("[PRISMA] CRITICAL: DATABASE_URL is missing.");
-  } else {
-    console.log("[PRISMA] Initialization starting with URL: " + url.substring(0, 15) + "...");
+    console.warn("[PRISMA] DATABASE_URL is missing during initialization. Using placeholder for build stability.");
   }
 
-  // Force the datasource URL even if the schema/types say it's not possible (Prisma 7 bypass)
-  const client = new PrismaClient({
-    datasourceUrl: url,
+  // Use the correct Prisma 7.x override pattern
+  return new PrismaClient({
+    datasources: {
+      db: {
+        url: url || "postgresql://postgres:postgres@localhost:5432/postgres",
+      },
+    },
     log: ["error", "warn"],
-  } as any);
-
-  return client;
+  });
 }
 
 export const prisma = globalForPrisma.prisma ?? getPrisma();

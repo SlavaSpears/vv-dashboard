@@ -1,0 +1,136 @@
+generator client {
+  provider        = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Long-term Backlog
+model Task {
+  id        String     @id @default(cuid())
+  title     String
+  notes     String     @default("")
+  status    TaskStatus @default(BACKLOG)
+  priority  Int        @default(2) // 1=High, 2=Normal, 3=Low
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  
+  // Relations
+  priorities Priority[]
+}
+
+enum TaskStatus {
+  BACKLOG
+  PLANNED
+  ACTIVE
+  DONE
+  ARCHIVED
+}
+
+// Today / Short-term items
+model NextAction {
+  id        String           @id @default(cuid())
+  title     String
+  status    NextActionStatus @default(QUEUED)
+  done      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+}
+
+enum NextActionStatus {
+  QUEUED
+  DOING
+  DONE
+}
+
+// Raw Inbox
+model Capture {
+  id        String   @id @default(cuid())
+  title     String
+  createdAt DateTime @default(now())
+}
+
+// Selection of Tasks for Today
+model Priority {
+  id        String   @id @default(cuid())
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId    String
+  createdAt DateTime @default(now())
+}
+
+model Person {
+  id            String         @id @default(cuid())
+  name          String
+  category      PersonCategory @default(BUSINESS)
+  context       String         @default("")
+  lastContact   DateTime?
+  nextFollowUp  DateTime?
+  notes         String         @default("")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+enum PersonCategory {
+  FAMILY
+  FRIENDS
+  BUSINESS
+}
+
+enum EventType {
+  MEETING
+  CALL
+}
+
+model Event {
+  id        String    @id @default(cuid())
+  type      EventType @default(MEETING)
+
+  title     String
+  person    String    @default("")
+  location  String    @default("")
+  startAt   DateTime
+  endAt     DateTime
+  notes     String    @default("")
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  title     String
+  body      String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// --- Intelligence Models ---
+
+model DailyBrief {
+  id        String   @id @default(cuid())
+  content   String   @default("")
+  updatedAt DateTime @updatedAt
+}
+
+model Signal {
+  id        String   @id @default(cuid())
+  text      String
+  source    String?
+  createdAt DateTime @default(now())
+}
+
+model Dossier {
+  id        String      @id @default(cuid())
+  name      String
+  type      DossierType @default(TOPIC)
+  note      String      @default("")
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+enum DossierType {
+  PERSON
+  COMPANY
+  TOPIC
+}

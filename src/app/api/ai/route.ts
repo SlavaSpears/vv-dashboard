@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { EventType, TaskStatus } from "@prisma/client";
 
 // This route uses Prisma and must run on the Node.js runtime (not Edge).
+export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 const getClient = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "missing" });

@@ -7,6 +7,7 @@ import {
   deleteDossier 
 } from "@/app/actions/intelligence";
 
+export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export default async function IntelligencePage() {

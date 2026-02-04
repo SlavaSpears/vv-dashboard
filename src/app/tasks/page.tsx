@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { createTask, updateTaskStatus, deleteTask } from "@/app/actions/tasks";
 import { TaskStatus } from "@prisma/client";
 
+export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export default async function TasksPage() {

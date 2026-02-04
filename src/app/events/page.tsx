@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { createEvent, deleteEvent } from "@/app/actions/events";
 import { EventType } from "@prisma/client";
 
+export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 function fmt(d: Date) {

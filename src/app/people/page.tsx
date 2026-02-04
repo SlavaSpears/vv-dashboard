@@ -6,6 +6,7 @@ import {
   updatePerson
 } from "@/app/actions/people";
 
+export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export default async function PeoplePage() {

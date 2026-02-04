@@ -6,6 +6,7 @@ import {
   demoteToBacklog
 } from "@/app/actions/tasks";
 
+export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export default async function NextActionsPage() {

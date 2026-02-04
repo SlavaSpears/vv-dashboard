@@ -25,7 +25,6 @@ export async function updateTask(
     title: string;
     notes: string;
     priority: number;
-    dueAt: Date | null;
   }>
 ) {
   await prisma.task.update({ where: { id }, data });
@@ -42,7 +41,6 @@ export async function toggleBacklogTask(id: string, done: boolean) {
     where: { id },
     data: {
       status: done ? "ARCHIVED" : "BACKLOG",
-      doneAt: done ? new Date() : null,
     },
   });
   revalidatePath("/tasks");

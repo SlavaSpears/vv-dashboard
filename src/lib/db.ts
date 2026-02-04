@@ -14,10 +14,10 @@ if (!connectionString && process.env.NODE_ENV === "production") {
 
 const pool = new Pool({ 
   connectionString,
-  max: 10,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-  ssl: connectionString?.includes("localhost") || connectionString?.includes("127.0.0.1") 
+  max: 20,
+  idleTimeoutMillis: 60000, // Increase idle timeout
+  connectionTimeoutMillis: 5000, // Increase connection timeout to 5s
+  ssl: connectionString?.includes("sslmode=disable") 
     ? false 
     : { rejectUnauthorized: false }
 });
@@ -27,7 +27,7 @@ export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
     adapter,
-    log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
+    log: ["error"], // Reduced logging for production
   });
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;

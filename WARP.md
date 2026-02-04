@@ -4,28 +4,25 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 
 ## Project layout
 
-- The main Next.js app lives in `web/`.
-- Application source is under `web/src/`:
+- The main Next.js app lives in the root directory.
+- Application source is under `src/`:
   - `app/` – App Router entry point and route tree (e.g. `page.tsx`, `tasks/page.tsx`, `goals/page.tsx`, `people/page.tsx`, `intelligence/page.tsx`, `settings/page.tsx`, plus `layout.tsx` and `globals.css`).
   - `app/actions/` – Server Actions for domain operations (currently `tasks.ts`, `meetings.ts`).
   - `app/api/` – Route handlers for API endpoints (currently stubs like `ai/route.ts`).
   - `components/` – Shared React components (e.g. `sidebar-nav`, `AITerminal` placeholder).
   - `components/ui/` – Low-level visual primitives (`Button`, `Card`, `Pill`, `BrandMark`, simple `cn` helper).
   - `lib/` – Backend-oriented utilities (`db.ts` for Prisma, `utils.ts` with a Tailwind-aware `cn` helper).
-- Database schema and migrations live in `web/prisma/` (configured via `web/prisma.config.ts`).
+- Database schema and migrations live in `prisma/` (configured via `prisma.config.ts`).
 
-A TypeScript path alias is configured in `web/tsconfig.json`:
+A TypeScript path alias is configured in `tsconfig.json`:
 
-- `@/*` → `web/src/*` (e.g. `@/lib/db` → `web/src/lib/db.ts`).
+- `@/*` → `src/*` (e.g. `@/lib/db` → `src/lib/db.ts`).
 
 ## Core commands
-
-All commands below assume you run them from the `web/` directory.
 
 ### Install dependencies
 
 ```bash
-cd web
 npm install
 ```
 
@@ -34,7 +31,6 @@ npm install
 Starts the Next.js App Router dev server on port 3000 by default:
 
 ```bash
-cd web
 npm run dev
 ```
 
@@ -43,35 +39,31 @@ Then open `http://localhost:3000` in a browser.
 ### Build and run in production mode
 
 ```bash
-cd web
 npm run build
 npm start
 ```
 
 ### Linting
 
-ESLint is configured via `web/eslint.config.mjs` using `eslint-config-next` (core web vitals + TypeScript):
+ESLint is configured via `eslint.config.mjs` using `eslint-config-next` (core web vitals + TypeScript):
 
 ```bash
-cd web
 npm run lint
 ```
 
 ### Prisma / database workflow (Supabase Postgres)
 
-Prisma is configured via `web/prisma.config.ts` and expects environment variables loaded like Next.js:
+Prisma is configured via `prisma.config.ts` and expects environment variables loaded like Next.js:
 
-- Place **shared** database env in `web/.env`.
-- For **local-only overrides**, use `web/.env.local` (these override `.env` when present).
+- Place **shared** database env in `.env`.
+- For **local-only overrides**, use `.env.local` (these override `.env` when present).
 - Required variables:
   - `DATABASE_URL` – Supabase **pooled** connection string (used by the Next.js runtime).
   - `DIRECT_URL` – Supabase **direct** connection string (used by Prisma migrations / client where needed).
 
-Always run Prisma CLI from the `web/` directory so `prisma.config.ts` can resolve the env files correctly. Common commands:
+Common commands:
 
 ```bash
-cd web
-
 # Validate the schema and datasource
 npx prisma validate
 
@@ -87,17 +79,17 @@ npx prisma generate
 
 In deployment environments like Vercel, set `DATABASE_URL` to the pooled (pgBouncer) string and `DIRECT_URL` to the direct (non-pooled) string so runtime queries and migrations use appropriate connections.
 
-> Note: There are currently no test runners or `test` scripts defined in `web/package.json`. If you add a test setup (e.g. Jest or Vitest), document the commands here for future agents.
+> Note: There are currently no test runners or `test` scripts defined in `package.json`. If you add a test setup (e.g. Jest or Vitest), document the commands here for future agents.
 
 ## High-level architecture
 
 ### App shell and layout
 
-- `web/src/app/layout.tsx` defines the root HTML structure and two-column layout:
+- `src/app/layout.tsx` defines the root HTML structure and two-column layout:
   - Left column: a sticky sidebar card containing branding and `SidebarNav`.
   - Right column: the main content area with the date-based header, status pills, and footer.
 - Global fonts are configured via `next/font/google` (Inter, Playfair Display, JetBrains Mono) and applied using CSS variables on the `<html>` element.
-- `web/src/app/globals.css` defines the **VV visual system**:
+- `src/app/globals.css` defines the **VV visual system**:
   - CSS variables for background/foreground and brass accent colors.
   - Reusable utility classes (`.vv-card`, `.vv-panel`, `.vv-pill`, `.vv-kicker`, `.vv-input`, `.vv-btn`, `.vv-btn-ghost`, `.vv-focus`, `.vv-rule`, `.vv-rule-brass`, `.vv-accent-dot`).
   - Watermark helpers (`.vv-watermark`, `.vv-watermark-soft`) that overlay the real VV logo PNG.
@@ -107,13 +99,13 @@ When adding new top-level sections or complex views, prefer composing these exis
 
 ### Routing and navigation
 
-- The app uses the Next.js **App Router** rooted at `web/src/app/`.
+- The app uses the Next.js **App Router** rooted at `src/app/`.
 - Key routes:
   - `/` → `app/page.tsx` – **Control Room** client component (daily priorities, actions, inbox, scorecard).
   - `/tasks` → `app/tasks/page.tsx` – server component backed by Prisma `task` records and server actions.
   - `/goals`, `/people`, `/intelligence`, `/settings`, `/meetings` – directories exist with page stubs or future expansion points.
-- `web/src/app/layout.tsx` wraps **all** routes, so shared layout changes (background, header, two-column grid, fonts) should be made there.
-- `web/src/components/sidebar-nav.tsx` is the single source of truth for the primary nav:
+- `src/app/layout.tsx` wraps **all** routes, so shared layout changes (background, header, two-column grid, fonts) should be made there.
+- `src/components/sidebar-nav.tsx` is the single source of truth for the primary nav:
   - Defines a static `NAV` array of items (label, href, kicker).
   - Uses `usePathname()` to compute an `active` state (exact match for `/`, prefix match for other sections).
   - Applies VV-specific focus and “active” styling.
@@ -122,16 +114,16 @@ When introducing a new top-level page, add a directory with `page.tsx` under `sr
 
 ### Data layer and server actions
 
-- `web/src/lib/db.ts` centralizes the Prisma client:
+- `src/lib/db.ts` centralizes the Prisma client:
   - Exports `db` (a singleton `PrismaClient`) with `log: ["error"]`.
   - Uses `globalThis` to reuse the client in development and avoid connection storms.
-- `web/prisma/schema.prisma` (not detailed here) defines the database models, including `task` and `meeting` tables used in the app.
+- `prisma/schema.prisma` defines the database models, including `task` and `meeting` tables used in the app.
 
 #### Tasks
 
-- Route: `web/src/app/tasks/page.tsx` (server component).
+- Route: `src/app/tasks/page.tsx` (server component).
 - Data access: imports `db` from `@/lib/db` and performs `db.task.findMany({ orderBy: { createdAt: "desc" } })`.
-- Mutations are encapsulated in **server actions** in `web/src/app/actions/tasks.ts`:
+- Mutations are encapsulated in **server actions** in `src/app/actions/tasks.ts`:
   - `createTask(title: string)` – trims the title, no-op on empty, creates a task with initial `status: "NEXT"`, then `revalidatePath("/")` and `revalidatePath("/tasks")`.
   - `updateTask(taskId, updates)` – generic update wrapper (title/notes/status), revalidates the same paths.
   - `toggleTaskDone(taskId)` – flips `doneAt` between `null`/`new Date()` and toggles `status` between `"NEXT"` and `"DONE"`, then revalidates.
@@ -142,9 +134,11 @@ If you add new task-related functionality, prefer expanding the `actions/tasks.t
 
 #### Meetings
 
-- Server actions are defined in `web/src/app/actions/meetings.ts`:
+- Server actions are defined in `src/app/actions/meetings.ts`:
   - `createMeeting`, `rescheduleMeeting`, `deleteMeeting` all operate on `db.meeting` and call `revalidatePath("/")` and `revalidatePath("/meetings")`.
-- `web/src/app/meetings/page.tsx` is currently empty, serving as a placeholder for the future meetings UI.
+- `src/app/meetings/page.tsx` is currently empty, serving as a placeholder for the future meetings UI.
+
+Future meeting-related UIs should consume these actions rather than talking to Prisma directly.
 
 Future meeting-related UIs should consume these actions rather than talking to Prisma directly.
 

@@ -4,17 +4,13 @@
 .env.development.local
 .env.test.local
 .env.production.local
-web/.env*
 
 # node_modules
 node_modules/
-web/node_modules/
 
 # Next.js
 .next/
-web/.next/
 out/
-web/out/
 
 # Vercel
 .vercel/
@@ -24,8 +20,11 @@ web/out/
 next-env.d.ts
 
 # Prisma
-/web/src/generated/prisma
+/src/generated/prisma
 
 # OS files
 .DS_Store
 Thumbs.db
+
+# Test artifacts
+test-github/

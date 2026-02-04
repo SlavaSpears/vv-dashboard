@@ -25,7 +25,7 @@ export async function createEvent(input: {
     },
   });
 
-  revalidatePath("/meetings");
+  revalidatePath("/events");
   revalidatePath("/");
 }
 
@@ -42,12 +42,12 @@ export async function updateEvent(
   }>
 ) {
   await prisma.event.update({ where: { id }, data });
-  revalidatePath("/meetings");
+  revalidatePath("/events");
   revalidatePath("/");
 }
 
 export async function deleteEvent(id: string) {
   await prisma.event.delete({ where: { id } });
-  revalidatePath("/meetings");
+  revalidatePath("/events");
   revalidatePath("/");
 }
